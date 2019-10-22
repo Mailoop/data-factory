@@ -1,0 +1,12 @@
+{
+	"name": "data_factory_results",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobStorage",
+		"typeProperties": {
+			"connectionString": "DefaultEndpointsProtocol=https;AccountName=mailoop;EndpointSuffix=core.windows.net;",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIk1BSUxPT1AtREFUQS1GQUNUT1JZX2RiZGYzNzlmLWE0YWQtNDVmMi05ZWZkLTZjNDE1NGUwNjg0ZCINCn0="
+		}
+	}
+}
