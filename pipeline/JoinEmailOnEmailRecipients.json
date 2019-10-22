@@ -1,5 +1,5 @@
 {
-	"name": "MergeEmailEmailRecipients",
+	"name": "JoinEmailOnEmailRecipients",
 	"properties": {
 		"activities": [
 			{
