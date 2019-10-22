@@ -22,7 +22,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "endResults",
+						"referenceName": "dataFactoryResults",
 						"type": "DatasetReference"
 					},
 					"name": "Sink"

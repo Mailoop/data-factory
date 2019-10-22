@@ -1,5 +1,5 @@
 {
-	"name": "endResults",
+	"name": "dataFactoryResults",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "data_factory_results",
@@ -12,8 +12,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"folderPath": "test2",
-				"container": "data-extract"
+				"container": "data-factory-results"
 			},
 			"columnDelimiter": "\t",
 			"escapeChar": "\\",
