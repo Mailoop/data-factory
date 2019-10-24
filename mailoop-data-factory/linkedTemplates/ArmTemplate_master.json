@@ -7,6 +7,10 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "mailoop-data-factory"
 		},
+		"HttpServer1_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'HttpServer1'"
+		},
 		"data_factory_results_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'data_factory_results'"
@@ -14,6 +18,14 @@
 		"paris_la_defense_master_db_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'paris_la_defense_master_db'"
+		},
+		"HttpServer1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://app.mailoop.com"
+		},
+		"HttpServer1_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "sdqsd"
 		},
 		"containerUri": {
 			"type": "string",
@@ -42,11 +54,20 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
+					"HttpServer1_password": {
+						"value": "[parameters('HttpServer1_password')]"
+					},
 					"data_factory_results_connectionString": {
 						"value": "[parameters('data_factory_results_connectionString')]"
 					},
 					"paris_la_defense_master_db_connectionString": {
 						"value": "[parameters('paris_la_defense_master_db_connectionString')]"
+					},
+					"HttpServer1_properties_typeProperties_url": {
+						"value": "[parameters('HttpServer1_properties_typeProperties_url')]"
+					},
+					"HttpServer1_properties_typeProperties_userName": {
+						"value": "[parameters('HttpServer1_properties_typeProperties_userName')]"
 					}
 				}
 			},

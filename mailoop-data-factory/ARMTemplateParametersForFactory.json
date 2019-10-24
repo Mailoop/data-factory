@@ -5,11 +5,20 @@
 		"factoryName": {
 			"value": "mailoop-data-factory"
 		},
+		"HttpServer1_password": {
+			"value": ""
+		},
 		"data_factory_results_connectionString": {
 			"value": ""
 		},
 		"paris_la_defense_master_db_connectionString": {
 			"value": ""
+		},
+		"HttpServer1_properties_typeProperties_url": {
+			"value": "https://app.mailoop.com"
+		},
+		"HttpServer1_properties_typeProperties_userName": {
+			"value": "sdqsd"
 		}
 	}
 }
