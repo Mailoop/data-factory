@@ -1,0 +1,192 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "mailoop-data-factory"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "emailRecipientExtract",
+								"type": "DatasetReference"
+							},
+							"name": "RawEmailRecipient"
+						},
+						{
+							"dataset": {
+								"referenceName": "emailsExtract",
+								"type": "DatasetReference"
+							},
+							"name": "RawEmails"
+						},
+						{
+							"dataset": {
+								"referenceName": "domainsExtracts",
+								"type": "DatasetReference"
+							},
+							"name": "domains"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "dataFactoryResults",
+								"type": "DatasetReference"
+							},
+							"name": "Sink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "mappedEmailRecipients",
+							"description": "Creates an explicit mapping for each drifted column"
+						},
+						{
+							"name": "mappedEmails",
+							"description": "Creates an explicit mapping for each drifted column"
+						},
+						{
+							"name": "emailEmailRecipientJoin"
+						},
+						{
+							"name": "selectedEmails"
+						},
+						{
+							"name": "Select1"
+						},
+						{
+							"name": "withYearWeek"
+						}
+					],
+					"script": "\n\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> RawEmailRecipient\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> RawEmails\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> domains\nRawEmailRecipient derive(er_id = toString(byName('id')),\n\t\ter_recipient_id = toString(byName('recipient_id')),\n\t\ter_email_id = toString(byName('email_id')),\n\t\ter_status = toString(byName('status')),\n\t\ter_created_at = toString(byName('updated_at')),\n\t\ter_updated_at = toString(byName('updated_at')),\n\t\ter_through_list = toString(byName('through_list')),\n\t\ter_read_delay = toString(byName('read_delay')),\n\t\ter_mailbox_message_id = toString(byName('mailbox_message_id')),\n\t\ter_is_read = toString(byName('is_read')),\n\t\ter_read_time = toString(byName('read_time')),\n\t\ter_delivered_date = toString(byName('delivered_date'))) ~> mappedEmailRecipients\nRawEmails derive(em_id = toString(byName('id')),\n\t\tem_sender_id = toString(byName('sender_id')),\n\t\tem_parent_id = toString(byName('parent_id')),\n\t\tem_email_thread_id = toString(byName('email_thread_id')),\n\t\tem_subject = toString(byName('subject')),\n\t\tem_date = toString(byName('date')),\n\t\tem_message_id = toString(byName('message_id')),\n\t\tem_created_at = toString(byName('created_at')),\n\t\tem_updated_at = toString(byName('updated_at')),\n\t\tem_mailbox_message_id = toString(byName('mailbox_message_id')),\n\t\tem_perimeter = toString(byName('perimeter')),\n\t\tem_is_answer = toString(byName('is_answer')),\n\t\tem_is_event_message = toString(byName('is_event_message')),\n\t\tem_in_reply_to = toString(byName('in_reply_to')),\n\t\tem_time_zone = toString(byName('time_zone')),\n\t\tem_thread_subject = toString(byName('thread_subject')),\n\t\tem_is_forwarded = toString(byName('is_forwarded'))) ~> mappedEmails\nSelect1, selectedEmails join(er_email_id == em_id,\n\tjoinType:'inner',\n\tbroadcast: 'none')~> emailEmailRecipientJoin\nmappedEmailRecipients select(mapColumn(\n\t\ter_id,\n\t\ter_recipient_id,\n\t\ter_email_id,\n\t\ter_status,\n\t\ter_created_at,\n\t\ter_updated_at,\n\t\ter_through_list,\n\t\ter_read_delay,\n\t\ter_mailbox_message_id,\n\t\ter_is_read,\n\t\ter_read_time,\n\t\ter_delivered_date\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> selectedEmails\nmappedEmails select(mapColumn(\n\t\tem_id,\n\t\tem_sender_id,\n\t\tem_parent_id,\n\t\tem_email_thread_id,\n\t\tem_subject,\n\t\tem_date,\n\t\tem_message_id,\n\t\tem_created_at,\n\t\tem_updated_at,\n\t\tem_mailbox_message_id,\n\t\tem_perimeter,\n\t\tem_is_answer,\n\t\tem_is_event_message,\n\t\tem_in_reply_to,\n\t\tem_time_zone,\n\t\tem_thread_subject,\n\t\tem_is_forwarded\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nemailEmailRecipientJoin derive(yearWeek = concat(\n    toString(year(toTimestamp(em_date))),\n    '-',\n    toString(weekOfYear((toTimestamp(em_date))))\n)) ~> withYearWeek\nwithYearWeek sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\trowUrlColumn:'yearWeek',\n\ttruncate: true,\n\tmapColumn(\n\t\tem_id,\n\t\tem_sender_id,\n\t\tem_parent_id,\n\t\tem_email_thread_id,\n\t\tem_subject,\n\t\tem_date,\n\t\tem_message_id,\n\t\tem_created_at,\n\t\tem_updated_at,\n\t\tem_mailbox_message_id,\n\t\tem_perimeter,\n\t\tem_is_answer,\n\t\tem_is_event_message,\n\t\tem_in_reply_to,\n\t\tem_time_zone,\n\t\tem_thread_subject,\n\t\tem_is_forwarded,\n\t\ter_id,\n\t\ter_recipient_id,\n\t\ter_email_id,\n\t\ter_status,\n\t\ter_created_at,\n\t\ter_updated_at,\n\t\ter_through_list,\n\t\ter_read_delay,\n\t\ter_mailbox_message_id,\n\t\ter_is_read,\n\t\ter_read_time,\n\t\ter_delivered_date,\n\t\tyearWeek\n\t)) ~> Sink"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/employeeExtract')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "data_factory_results",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "employees.csv",
+						"container": "data-extract"
+					},
+					"columnDelimiter": "\t",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CollectEmployee')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy_Employees",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "public.emails"
+							},
+							{
+								"name": "Destination",
+								"value": "data-extract//emails"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "PostgreSqlSource"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "pldEmployees",
+								"type": "DatasetReference"
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "employeeExtract",
+								"type": "DatasetReference"
+							}
+						]
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/pldEmployees')]",
+				"[concat(variables('factoryId'), '/datasets/employeeExtract')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pldEmployees')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "paris_la_defense_master_db",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "PostgreSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "public",
+					"table": "employees"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
