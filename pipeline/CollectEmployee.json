@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy_Domains",
+				"name": "Copy_Employees",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -42,13 +42,13 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "pldDomains",
+						"referenceName": "pldEmployees",
 						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
 					{
-						"referenceName": "domainsExtracts",
+						"referenceName": "employeeExtract",
 						"type": "DatasetReference"
 					}
 				]
