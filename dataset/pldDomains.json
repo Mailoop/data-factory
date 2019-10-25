@@ -9,7 +9,7 @@
 		"type": "PostgreSqlTable",
 		"schema": [],
 		"typeProperties": {
-			"schema": "information_schema",
+			"schema": "public",
 			"table": "domains"
 		}
 	},
