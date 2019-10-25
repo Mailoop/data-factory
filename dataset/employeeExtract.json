@@ -1,0 +1,24 @@
+{
+	"name": "employeeExtract",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "data_factory_results",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "domains.csv",
+				"container": "data-extract"
+			},
+			"columnDelimiter": "\t",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
