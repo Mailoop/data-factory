@@ -42,13 +42,13 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "pldEmails",
+						"referenceName": "pldDomains",
 						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
 					{
-						"referenceName": "emailsExtract",
+						"referenceName": "domainsExtracts",
 						"type": "DatasetReference"
 					}
 				]
