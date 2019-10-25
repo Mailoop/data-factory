@@ -1,0 +1,17 @@
+{
+	"name": "pldEmployees",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "paris_la_defense_master_db",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "PostgreSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "public",
+			"table": "employees"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
