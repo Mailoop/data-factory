@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy_0td",
+				"name": "Copy_Domains",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
