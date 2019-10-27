@@ -1,0 +1,27 @@
+{
+	"name": "empoyeeWithDomains",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "data_factory_results",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"container": "data-extract"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "id\turl\tcompany_id\tcreated_at\tupdated_at",
+				"type": "String"
+			}
+		]
+	}
+}
