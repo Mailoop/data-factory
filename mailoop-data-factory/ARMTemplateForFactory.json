@@ -308,7 +308,7 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "dataflow1",
+						"name": "mainDataFlow",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
