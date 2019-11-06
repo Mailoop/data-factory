@@ -18,7 +18,76 @@
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
 		},
-		"schema": []
+		"schema": [
+			{
+				"name": "id",
+				"type": "String"
+			},
+			{
+				"name": "sender_id",
+				"type": "String"
+			},
+			{
+				"name": "parent_id",
+				"type": "String"
+			},
+			{
+				"name": "email_thread_id",
+				"type": "String"
+			},
+			{
+				"name": "subject",
+				"type": "String"
+			},
+			{
+				"name": "date",
+				"type": "String"
+			},
+			{
+				"name": "message_id",
+				"type": "String"
+			},
+			{
+				"name": "created_at",
+				"type": "String"
+			},
+			{
+				"name": "updated_at",
+				"type": "String"
+			},
+			{
+				"name": "mailbox_message_id",
+				"type": "String"
+			},
+			{
+				"name": "perimeter",
+				"type": "String"
+			},
+			{
+				"name": "is_answer",
+				"type": "String"
+			},
+			{
+				"name": "is_event_message",
+				"type": "String"
+			},
+			{
+				"name": "in_reply_to",
+				"type": "String"
+			},
+			{
+				"name": "time_zone",
+				"type": "String"
+			},
+			{
+				"name": "thread_subject",
+				"type": "String"
+			},
+			{
+				"name": "is_forwarded",
+				"type": "String"
+			}
+		]
 	},
 	"type": "Microsoft.DataFactory/factories/datasets"
 }

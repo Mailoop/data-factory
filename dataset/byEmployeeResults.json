@@ -1,26 +1,22 @@
 {
-	"name": "byWeekResults",
+	"name": "byEmployeeResults",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "data_factory_results",
 			"type": "LinkedServiceReference"
 		},
-		"annotations": [
-			"End_result"
-		],
+		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"folderPath": "byWeek",
+				"folderPath": "by_employee",
 				"container": "data-factory-results"
 			},
-			"columnDelimiter": "\t",
+			"columnDelimiter": ",",
 			"escapeChar": "\\",
-			"firstRowAsHeader": true,
 			"quoteChar": "\""
 		},
 		"schema": []
-	},
-	"type": "Microsoft.DataFactory/factories/datasets"
+	}
 }
