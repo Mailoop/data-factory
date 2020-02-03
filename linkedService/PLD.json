@@ -1,0 +1,12 @@
+{
+	"name": "PLD",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "PostgreSql",
+		"typeProperties": {
+			"connectionString": "host=ec2-18-200-174-31.eu-west-1.compute.amazonaws.com;port=5432;database=df8cptib8fgpop;uid=u7dd0tbbsfb67q;encryptionmethod=6;validateservercertificate=0",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIk1BSUxPT1AtREFUQS1GQUNUT1JZXzA1ZjhiMGMyLTRkMjctNGFjYi05NGEwLWU3NjgzZDk1MTNiYiINCn0="
+		}
+	}
+}
