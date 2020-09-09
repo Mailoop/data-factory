@@ -15,13 +15,6 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "byWeekResults",
-						"type": "DatasetReference"
-					},
-					"name": "byWeekSink"
-				},
-				{
-					"dataset": {
 						"referenceName": "byEmployeeResults",
 						"type": "DatasetReference"
 					},
@@ -34,28 +27,10 @@
 					"description": "Creates an explicit mapping for each drifted column"
 				},
 				{
-					"name": "selectedEmailsRecipients"
-				},
-				{
-					"name": "withFilenames"
-				},
-				{
-					"name": "emailRecipientWithRecipients"
-				},
-				{
-					"name": "WithEmails"
-				},
-				{
-					"name": "RemoveJoindDuplicateColumns"
-				},
-				{
-					"name": "BeforeSinkSelect"
-				},
-				{
-					"name": "EmailsRecipientsByEmails"
+					"name": "agg"
 				}
 			],
-			"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> RawEmailRecipient\nRawEmailRecipient derive(er_id = toString(byName('id')),\n\t\ter_recipient_id = toString(byName('recipient_id')),\n\t\ter_email_id = toString(byName('email_id')),\n\t\ter_status = toString(byName('status')),\n\t\ter_created_at = toString(byName('updated_at')),\n\t\ter_updated_at = toString(byName('updated_at')),\n\t\ter_through_list = toString(byName('through_list')),\n\t\ter_read_delay = toString(byName('read_delay')),\n\t\ter_mailbox_message_id = toString(byName('mailbox_message_id')),\n\t\ter_is_read = toString(byName('is_read')),\n\t\ter_read_time = toString(byName('read_time')),\n\t\ter_delivered_date = toString(byName('delivered_date'))) ~> mappedEmailRecipients\nEmailsRecipientsByEmails select(mapColumn(\n\t\ter_id,\n\t\ter_recipient_id = er_email_id,\n\t\ter_email_id,\n\t\ter_status,\n\t\ter_through_list,\n\t\ter_read_delay,\n\t\ter_mailbox_message_id,\n\t\ter_is_read,\n\t\ter_read_time,\n\t\ter_delivered_date\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> selectedEmailsRecipients\nRemoveJoindDuplicateColumns derive(filenameYearWeek = concat(\n    toString(year(toTimestamp(em_date))),\n    '-',\n    toString(weekOfYear((toTimestamp(em_date)))),\n    '.csv'\n),\n\t\tfilenameRecipientId = concat(\n    toString(er_recipient_id),\n    '.csv'\n),\n\t\tmonth = month(toTimestamp(em_date)),\n\t\tyear = year(toTimestamp(em_date)),\n\t\tday = dayOfMonth(toTimestamp(em_date))) ~> withFilenames\nselectedEmailsRecipients join(er_recipient_id == emp_id,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> emailRecipientWithRecipients\nemailRecipientWithRecipients join(er_email_id == em_id,\n\tjoinType:'left',\n\tbroadcast: 'auto')~> WithEmails\nWithEmails select(mapColumn(\n\t\ter_id,\n\t\ter_recipient_id,\n\t\ter_status,\n\t\ter_through_list,\n\t\ter_read_delay,\n\t\ter_mailbox_message_id,\n\t\ter_is_read,\n\t\ter_read_time,\n\t\ter_delivered_date,\n\t\temp_active,\n\t\temp_domain_id,\n\t\tdom_url,\n\t\tdom_company_id,\n\t\tem_id,\n\t\tem_sender_id,\n\t\tem_parent_id,\n\t\tem_email_thread_id,\n\t\tem_subject,\n\t\tem_date,\n\t\tem_message_id,\n\t\tem_mailbox_message_id,\n\t\tem_perimeter,\n\t\tem_is_answer,\n\t\tem_is_event_message,\n\t\tem_in_reply_to,\n\t\tem_time_zone,\n\t\tem_thread_subject,\n\t\tem_is_forwarded\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> RemoveJoindDuplicateColumns\nwithFilenames select(mapColumn(\n\t\ter_id,\n\t\ter_recipient_id,\n\t\ter_status,\n\t\ter_through_list,\n\t\ter_read_delay,\n\t\ter_mailbox_message_id,\n\t\ter_is_read,\n\t\ter_read_time,\n\t\ter_delivered_date,\n\t\temp_active,\n\t\temp_domain_id,\n\t\tdom_url,\n\t\tdom_company_id,\n\t\tem_id,\n\t\tem_sender_id,\n\t\tem_parent_id,\n\t\tem_email_thread_id,\n\t\tem_subject,\n\t\tem_date,\n\t\tem_message_id,\n\t\tem_mailbox_message_id,\n\t\tem_perimeter,\n\t\tem_is_answer,\n\t\tem_is_event_message,\n\t\tem_in_reply_to,\n\t\tem_time_zone,\n\t\tem_thread_subject,\n\t\tem_is_forwarded,\n\t\tfilenameYearWeek,\n\t\tmonth,\n\t\tyear,\n\t\tday,\n\t\tfilenameRecipientId\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> BeforeSinkSelect\nmappedEmailRecipients aggregate(groupBy(er_email_id),\n\ter_recipient_id = collect(er_recipient_id)) ~> EmailsRecipientsByEmails\nBeforeSinkSelect sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\trowUrlColumn:'filenameYearWeek',\n\ttruncate: true) ~> byWeekSink\nBeforeSinkSelect sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\trowUrlColumn:'filenameRecipientId',\n\ttruncate: true) ~> byRecipientSink"
+			"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> RawEmailRecipient\nRawEmailRecipient derive(er_id = toString(byName('id')),\n\t\ter_recipient_id = toString(byName('recipient_id')),\n\t\ter_email_id = toString(byName('email_id')),\n\t\ter_status = toString(byName('status')),\n\t\ter_created_at = toString(byName('updated_at')),\n\t\ter_updated_at = toString(byName('updated_at')),\n\t\ter_through_list = toString(byName('through_list')),\n\t\ter_read_delay = toString(byName('read_delay')),\n\t\ter_mailbox_message_id = toString(byName('mailbox_message_id')),\n\t\ter_is_read = toString(byName('is_read')),\n\t\ter_read_time = toString(byName('read_time')),\n\t\ter_delivered_date = toString(byName('delivered_date'))) ~> mappedEmailRecipients\nmappedEmailRecipients aggregate(groupBy(er_email_id),\n\ter_recipient_id = collect(er_recipient_id)) ~> agg\nagg sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\trowUrlColumn:'filenameRecipientId',\n\ttruncate: true) ~> byRecipientSink"
 		}
 	}
 }
