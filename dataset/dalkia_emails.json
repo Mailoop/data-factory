@@ -1,0 +1,17 @@
+{
+	"name": "dalkia_emails",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "dalkia_relationnal_db",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "PostgreSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "public",
+			"table": "emails"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

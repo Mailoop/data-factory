@@ -1,0 +1,25 @@
+{
+	"name": "dalkia_relationnal_db",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "dalkia_relationnal_db_V2",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"cw_table": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "PostgreSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "public",
+			"table": {
+				"value": "@dataset().cw_table",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
