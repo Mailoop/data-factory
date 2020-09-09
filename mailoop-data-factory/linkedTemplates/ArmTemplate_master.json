@@ -7,9 +7,13 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "mailoop-data-factory"
 		},
-		"HttpServer1_password": {
+		"dalkia_relationnal_db_connectionString": {
 			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'HttpServer1'"
+			"metadata": "Secure string for 'connectionString' of 'dalkia_relationnal_db'"
+		},
+		"dalkia_relationnal_db_V2_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'dalkia_relationnal_db_V2'"
 		},
 		"data_factory_results_connectionString": {
 			"type": "secureString",
@@ -18,14 +22,6 @@
 		"paris_la_defense_master_db_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'paris_la_defense_master_db'"
-		},
-		"HttpServer1_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://app.mailoop.com"
-		},
-		"HttpServer1_properties_typeProperties_userName": {
-			"type": "string",
-			"defaultValue": "sdqsd"
 		},
 		"containerUri": {
 			"type": "string",
@@ -41,7 +37,7 @@
 	},
 	"resources": [
 		{
-			"name": "ArmTemplate_0",
+			"name": "mailoop-data-factory_ArmTemplate_0",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2018-02-01",
 			"properties": {
@@ -54,27 +50,24 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
-					"HttpServer1_password": {
-						"value": "[parameters('HttpServer1_password')]"
+					"dalkia_relationnal_db_connectionString": {
+						"value": "[parameters('dalkia_relationnal_db_connectionString')]"
+					},
+					"dalkia_relationnal_db_V2_connectionString": {
+						"value": "[parameters('dalkia_relationnal_db_V2_connectionString')]"
 					},
 					"data_factory_results_connectionString": {
 						"value": "[parameters('data_factory_results_connectionString')]"
 					},
 					"paris_la_defense_master_db_connectionString": {
 						"value": "[parameters('paris_la_defense_master_db_connectionString')]"
-					},
-					"HttpServer1_properties_typeProperties_url": {
-						"value": "[parameters('HttpServer1_properties_typeProperties_url')]"
-					},
-					"HttpServer1_properties_typeProperties_userName": {
-						"value": "[parameters('HttpServer1_properties_typeProperties_userName')]"
 					}
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "ArmTemplate_1",
+			"name": "mailoop-data-factory_ArmTemplate_1",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2018-02-01",
 			"properties": {
@@ -90,7 +83,7 @@
 				}
 			},
 			"dependsOn": [
-				"[resourceId('Microsoft.Resources/deployments', 'ArmTemplate_0')]"
+				"[resourceId('Microsoft.Resources/deployments', 'mailoop-data-factory_ArmTemplate_0')]"
 			]
 		}
 	]
