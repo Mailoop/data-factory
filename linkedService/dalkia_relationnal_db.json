@@ -1,0 +1,13 @@
+{
+	"name": "dalkia_relationnal_db",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "postgres://ufhernd9ito7ha:p61320870ee4e3eb7f2c34e6a91f8ab6e568cca34ef821980304564d64fc1ae7b@ec2-63-32-33-178.eu-west-1.compute.amazonaws.com:5432/dd5cdiais9tqlj",
+		"annotations": [],
+		"type": "PostgreSql",
+		"typeProperties": {
+			"connectionString": "host=ec2-63-32-33-178.eu-west-1.compute.amazonaws.com;port=5432;database=dd5cdiais9tqlj;uid=ufhernd9ito7ha;encryptionmethod=1;validateservercertificate=0",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIk1BSUxPT1AtREFUQS1GQUNUT1JZX2I0NmZkYWFmLThjYmYtNDlkYy1hNjUwLTBiYjE2ZjQ0OTZlMSINCn0="
+		}
+	}
+}
