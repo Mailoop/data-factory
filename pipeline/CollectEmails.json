@@ -42,7 +42,7 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "pldEmails",
+						"referenceName": "dalkia_emails",
 						"type": "DatasetReference"
 					}
 				],
