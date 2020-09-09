@@ -43,7 +43,7 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "pldEmailRecipient",
+						"referenceName": "dalkia_emails_recipients",
 						"type": "DatasetReference"
 					}
 				],
