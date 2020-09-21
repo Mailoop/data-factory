@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "extract_emails_from_db",
+				"name": "extract_emails_from_dbb",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -58,7 +58,7 @@
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "extract_emails_from_db",
+						"activity": "extract_emails_from_dbb",
 						"dependencyConditions": [
 							"Succeeded"
 						]
