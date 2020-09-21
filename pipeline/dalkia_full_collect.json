@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "extract_emails",
+				"name": "extract_emails_from_db",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -54,11 +54,11 @@
 				]
 			},
 			{
-				"name": "copyEmailRecipient",
+				"name": "extract_email_recipients_from_db",
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "extract_emails",
+						"activity": "extract_emails_from_db",
 						"dependencyConditions": [
 							"Succeeded"
 						]
