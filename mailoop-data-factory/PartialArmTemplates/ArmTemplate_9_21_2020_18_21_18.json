@@ -1,0 +1,198 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "mailoop-data-factory"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/dalkia_full_collect')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "extract_emails_from_dbb",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "public.emails"
+							},
+							{
+								"name": "Destination",
+								"value": "data-extract//emails"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "PostgreSqlSource"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "dalkia_emails",
+								"type": "DatasetReference"
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "emailsExtract",
+								"type": "DatasetReference"
+							}
+						]
+					},
+					{
+						"name": "extract_email_recipients_from_db",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "extract_emails_from_dbb",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "public.email_recipients"
+							},
+							{
+								"name": "Destination",
+								"value": "data-extract//email_recipients.csv"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "PostgreSqlSource"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"enableSkipIncompatibleRow": false
+						},
+						"inputs": [
+							{
+								"referenceName": "dalkia_emails_recipients",
+								"type": "DatasetReference"
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "emailRecipientExtract",
+								"type": "DatasetReference"
+							}
+						]
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Result_Agg')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "data_factory_results",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "data-factory-results"
+					},
+					"columnDelimiter": "\t",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/main')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "emailRecipientExtract",
+								"type": "DatasetReference"
+							},
+							"name": "RawEmailRecipient"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "byEmployeeResults",
+								"type": "DatasetReference"
+							},
+							"name": "byRecipientSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "mappedEmailRecipients",
+							"description": "Creates an explicit mapping for each drifted column"
+						}
+					],
+					"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> RawEmailRecipient\nRawEmailRecipient derive(er_id = toString(byName('id')),\n\t\ter_recipient_id = toString(byName('recipient_id')),\n\t\ter_email_id = toString(byName('email_id')),\n\t\ter_status = toString(byName('status')),\n\t\ter_created_at = toString(byName('updated_at')),\n\t\ter_updated_at = toString(byName('updated_at')),\n\t\ter_through_list = toString(byName('through_list')),\n\t\ter_read_delay = toString(byName('read_delay')),\n\t\ter_mailbox_message_id = toString(byName('mailbox_message_id')),\n\t\ter_is_read = toString(byName('is_read')),\n\t\ter_read_time = toString(byName('read_time')),\n\t\ter_delivered_date = toString(byName('delivered_date'))) ~> mappedEmailRecipients\nmappedEmailRecipients sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\ttruncate: true) ~> byRecipientSink"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

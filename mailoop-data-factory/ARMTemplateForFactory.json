@@ -29,80 +29,13 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/CollectDomains')]",
+			"name": "[concat(parameters('factoryName'), '/dalkia_full_collect')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Copy_Domains",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [
-							{
-								"name": "Source",
-								"value": "public.emails"
-							},
-							{
-								"name": "Destination",
-								"value": "data-extract//emails"
-							}
-						],
-						"typeProperties": {
-							"source": {
-								"type": "PostgreSqlSource"
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "pldDomains",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "domainsExtracts",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/pldDomains')]",
-				"[concat(variables('factoryId'), '/datasets/domainsExtracts')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/CollectEmails')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy_0td",
+						"name": "extract_emails_from_dbb",
 						"type": "Copy",
 						"dependsOn": [],
 						"policy": {
@@ -153,92 +86,18 @@
 								"parameters": {}
 							}
 						]
-					}
-				],
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/dalkia_emails')]",
-				"[concat(variables('factoryId'), '/datasets/emailsExtract')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/CollectEmployee')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
+					},
 					{
-						"name": "Copy_Employees",
+						"name": "extract_email_recipients_from_db",
 						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [
+						"dependsOn": [
 							{
-								"name": "Source",
-								"value": "public.emails"
-							},
-							{
-								"name": "Destination",
-								"value": "data-extract//emails"
+								"activity": "extract_emails_from_dbb",
+								"dependencyConditions": [
+									"Succeeded"
+								]
 							}
 						],
-						"typeProperties": {
-							"source": {
-								"type": "PostgreSqlSource"
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "pldEmployees",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "employeeExtract",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/pldEmployees')]",
-				"[concat(variables('factoryId'), '/datasets/employeeExtract')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/CopyEmailRecipients')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "copyEmailRecipient",
-						"type": "Copy",
-						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
@@ -293,176 +152,41 @@
 				"annotations": []
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/dalkia_emails')]",
+				"[concat(variables('factoryId'), '/datasets/emailsExtract')]",
 				"[concat(variables('factoryId'), '/datasets/dalkia_emails_recipients')]",
 				"[concat(variables('factoryId'), '/datasets/emailRecipientExtract')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/JoinEmailOnEmailRecipients')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "mainDataFlow",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "main",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"RawEmailRecipient": {},
-									"byRecipientSink": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							}
-						}
-					}
-				],
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/main')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dalkia_full_collect')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy_Domains",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [
-							{
-								"name": "Source",
-								"value": "public.emails"
-							},
-							{
-								"name": "Destination",
-								"value": "data-extract//emails"
-							}
-						],
-						"typeProperties": {
-							"source": {
-								"type": "PostgreSqlSource"
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "pldDomains",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "domainsExtracts",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					},
-					{
-						"name": "emails",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [
-							{
-								"name": "Source",
-								"value": "public.emails"
-							},
-							{
-								"name": "Destination",
-								"value": "data-extract//emails"
-							}
-						],
-						"typeProperties": {
-							"source": {
-								"type": "PostgreSqlSource"
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "dalkia_emails",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "emailsExtract",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/pldDomains')]",
-				"[concat(variables('factoryId'), '/datasets/domainsExtracts')]",
-				"[concat(variables('factoryId'), '/datasets/dalkia_emails')]",
-				"[concat(variables('factoryId'), '/datasets/emailsExtract')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/Florian')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "data_factory_results",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "data-factory-results"
+					},
+					"columnDelimiter": "\t",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/data_factory_results')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Result_Agg')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -996,67 +720,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/CollectEmailTrigger')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "CollectEmails",
-							"type": "PipelineReference"
-						},
-						"parameters": {}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Hour",
-						"interval": 24,
-						"startTime": "2019-10-22T18:03:00Z",
-						"timeZone": "UTC"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/CollectEmails')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/CollectTrigger')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipeline": {
-					"pipelineReference": {
-						"referenceName": "CopyEmailRecipients",
-						"type": "PipelineReference"
-					},
-					"parameters": {}
-				},
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Hour",
-					"interval": 24,
-					"startTime": "2019-10-22T17:55:00Z",
-					"delay": "00:00:00",
-					"maxConcurrency": 50,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": []
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/CopyEmailRecipients')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/JoinEmployeesWithDomains')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -1107,7 +770,7 @@
 							"name": "JoinEmployeeWithDomain"
 						}
 					],
-					"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> RawEmployees\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> RawDomains\nRawEmployees derive(emp_id = toString(byName('id')),\n\t\temp_email_address = toString(byName('email_address')),\n\t\temp_exit_date = toString(byName('exit_date')),\n\t\temp_active = toString(byName('active')),\n\t\temp_domain_id = toString(byName('domain_id')),\n\t\temp_user_id = toString(byName('user_id')),\n\t\temp_created_at = toString(byName('created_at')),\n\t\temp_updated_at = toString(byName('updated_at')),\n\t\temp_mailbox_user_id = toString(byName('mailbox_user_id')),\n\t\temp_last_call_success = toString(byName('last_call_success')),\n\t\temp_time_zone = toString(byName('time_zone')),\n\t\temp_locale = toString(byName('locale')),\n\t\temp_admin = toString(byName('admin')),\n\t\temp_is_list = toString(byName('is_list')),\n\t\temp_entry_date = toString(byName('entry_date')),\n\t\temp_user_unique_id = toString(byName('user_unique_id')),\n\t\temp_parent_id = toString(byName('parent_id')),\n\t\temp_country = toString(byName('country')),\n\t\temp_language = toString(byName('language')),\n\t\temp_encrypted_email_address = toString(byName('encrypted_email_address')),\n\t\temp_working_time = toString(byName('working_time')),\n\t\temp_is_api_available = toString(byName('is_api_available')),\n\t\temp_behaviors_group_id = toString(byName('behaviors_group_id')),\n\t\temp_analytics_end_date = toString(byName('analytics_end_date')),\n\t\temp_analytics_start_date = toString(byName('analytics_start_date')),\n\t\temp_analytics_data_extraction_done = toString(byName('analytics_data_extraction_done')),\n\t\temp_smart_deconnexion_country_code = toString(byName('smart_deconnexion_country_code')),\n\t\temp_force_unactive = toString(byName('force_unactive')),\n\t\temp_data_extracted_until = toString(byName('data_extracted_until')),\n\t\temp_directory_type = toString(byName('directory_type')),\n\t\temp_is_directory_ressource_account = toString(byName('is_directory_ressource_account'))) ~> Employee\nEmployee select(mapColumn(\n\t\temp_id,\n\t\temp_email_address,\n\t\temp_exit_date,\n\t\temp_active,\n\t\temp_domain_id,\n\t\temp_user_id,\n\t\temp_created_at,\n\t\temp_updated_at,\n\t\temp_mailbox_user_id,\n\t\temp_last_call_success,\n\t\temp_time_zone,\n\t\temp_locale,\n\t\temp_admin,\n\t\temp_is_list,\n\t\temp_entry_date,\n\t\temp_user_unique_id,\n\t\temp_parent_id,\n\t\temp_country,\n\t\temp_language,\n\t\temp_encrypted_email_address,\n\t\temp_working_time,\n\t\temp_is_api_available,\n\t\temp_behaviors_group_id,\n\t\temp_analytics_end_date,\n\t\temp_analytics_start_date,\n\t\temp_analytics_data_extraction_done,\n\t\temp_smart_deconnexion_country_code,\n\t\temp_force_unactive,\n\t\temp_data_extracted_until,\n\t\temp_directory_type,\n\t\temp_is_directory_ressource_account\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> employeesWithSelect\nRawDomains derive(dom_id = toString(byName('id')),\n\t\tdom_url = toString(byName('url')),\n\t\tdom_company_id = toString(byName('company_id'))) ~> Domains\nDomains select(mapColumn(\n\t\tdom_id,\n\t\tdom_url,\n\t\tdom_company_id\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> domainsWithSelect\nemployeesWithSelect, domainsWithSelect join(emp_domain_id == dom_id,\n\tjoinType:'left',\n\tbroadcast: 'auto')~> JoinEmployeeWithDomain\nJoinEmployeeWithDomain sink(input(\n\t\t{id\turl\tcompany_id\tcreated_at\tupdated_at} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> employeeWithDomains"
+					"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> RawEmployees\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> RawDomains\nRawEmployees derive(emp_id = toString(byName('id')),\n\t\temp_email_address = toString(byName('email_address')),\n\t\temp_exit_date = toString(byName('exit_date')),\n\t\temp_active = toString(byName('active')),\n\t\temp_domain_id = toString(byName('domain_id')),\n\t\temp_user_id = toString(byName('user_id')),\n\t\temp_created_at = toString(byName('created_at')),\n\t\temp_updated_at = toString(byName('updated_at')),\n\t\temp_mailbox_user_id = toString(byName('mailbox_user_id')),\n\t\temp_last_call_success = toString(byName('last_call_success')),\n\t\temp_time_zone = toString(byName('time_zone')),\n\t\temp_locale = toString(byName('locale')),\n\t\temp_admin = toString(byName('admin')),\n\t\temp_is_list = toString(byName('is_list')),\n\t\temp_entry_date = toString(byName('entry_date')),\n\t\temp_user_unique_id = toString(byName('user_unique_id')),\n\t\temp_parent_id = toString(byName('parent_id')),\n\t\temp_country = toString(byName('country')),\n\t\temp_language = toString(byName('language')),\n\t\temp_encrypted_email_address = toString(byName('encrypted_email_address')),\n\t\temp_working_time = toString(byName('working_time')),\n\t\temp_is_api_available = toString(byName('is_api_available')),\n\t\temp_behaviors_group_id = toString(byName('behaviors_group_id')),\n\t\temp_analytics_end_date = toString(byName('analytics_end_date')),\n\t\temp_analytics_start_date = toString(byName('analytics_start_date')),\n\t\temp_analytics_data_extraction_done = toString(byName('analytics_data_extraction_done')),\n\t\temp_smart_deconnexion_country_code = toString(byName('smart_deconnexion_country_code')),\n\t\temp_force_unactive = toString(byName('force_unactive')),\n\t\temp_data_extracted_until = toString(byName('data_extracted_until')),\n\t\temp_directory_type = toString(byName('directory_type')),\n\t\temp_is_directory_ressource_account = toString(byName('is_directory_ressource_account'))) ~> Employee\nEmployee select(mapColumn(\n\t\temp_id,\n\t\temp_email_address,\n\t\temp_exit_date,\n\t\temp_active,\n\t\temp_domain_id,\n\t\temp_user_id,\n\t\temp_created_at,\n\t\temp_updated_at,\n\t\temp_mailbox_user_id,\n\t\temp_last_call_success,\n\t\temp_time_zone,\n\t\temp_locale,\n\t\temp_admin,\n\t\temp_is_list,\n\t\temp_entry_date,\n\t\temp_user_unique_id,\n\t\temp_parent_id,\n\t\temp_country,\n\t\temp_language,\n\t\temp_encrypted_email_address,\n\t\temp_working_time,\n\t\temp_is_api_available,\n\t\temp_behaviors_group_id,\n\t\temp_analytics_end_date,\n\t\temp_analytics_start_date,\n\t\temp_analytics_data_extraction_done,\n\t\temp_smart_deconnexion_country_code,\n\t\temp_force_unactive,\n\t\temp_data_extracted_until,\n\t\temp_directory_type,\n\t\temp_is_directory_ressource_account\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> employeesWithSelect\nRawDomains derive(dom_id = toString(byName('id')),\n\t\tdom_url = toString(byName('url')),\n\t\tdom_company_id = toString(byName('company_id'))) ~> Domains\nDomains select(mapColumn(\n\t\tdom_id,\n\t\tdom_url,\n\t\tdom_company_id\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> domainsWithSelect\nemployeesWithSelect, domainsWithSelect join(emp_domain_id == dom_id,\n\tjoinType:'left',\n\tbroadcast: 'auto')~> JoinEmployeeWithDomain\nJoinEmployeeWithDomain sink(input(\n\t\t{id\turl\tcompany_id\tcreated_at\tupdated_at} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> employeeWithDomains"
 				}
 			},
 			"dependsOn": [
@@ -1145,59 +808,14 @@
 						{
 							"name": "mappedEmailRecipients",
 							"description": "Creates an explicit mapping for each drifted column"
-						},
-						{
-							"name": "agg"
 						}
 					],
-					"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> RawEmailRecipient\nRawEmailRecipient derive(er_id = toString(byName('id')),\n\t\ter_recipient_id = toString(byName('recipient_id')),\n\t\ter_email_id = toString(byName('email_id')),\n\t\ter_status = toString(byName('status')),\n\t\ter_created_at = toString(byName('updated_at')),\n\t\ter_updated_at = toString(byName('updated_at')),\n\t\ter_through_list = toString(byName('through_list')),\n\t\ter_read_delay = toString(byName('read_delay')),\n\t\ter_mailbox_message_id = toString(byName('mailbox_message_id')),\n\t\ter_is_read = toString(byName('is_read')),\n\t\ter_read_time = toString(byName('read_time')),\n\t\ter_delivered_date = toString(byName('delivered_date'))) ~> mappedEmailRecipients\nmappedEmailRecipients aggregate(groupBy(er_email_id),\n\ter_recipient_id = collect(er_recipient_id)) ~> agg\nagg sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\trowUrlColumn:'filenameRecipientId',\n\ttruncate: true) ~> byRecipientSink"
+					"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> RawEmailRecipient\nRawEmailRecipient derive(er_id = toString(byName('id')),\n\t\ter_recipient_id = toString(byName('recipient_id')),\n\t\ter_email_id = toString(byName('email_id')),\n\t\ter_status = toString(byName('status')),\n\t\ter_created_at = toString(byName('updated_at')),\n\t\ter_updated_at = toString(byName('updated_at')),\n\t\ter_through_list = toString(byName('through_list')),\n\t\ter_read_delay = toString(byName('read_delay')),\n\t\ter_mailbox_message_id = toString(byName('mailbox_message_id')),\n\t\ter_is_read = toString(byName('is_read')),\n\t\ter_read_time = toString(byName('read_time')),\n\t\ter_delivered_date = toString(byName('delivered_date'))) ~> mappedEmailRecipients\nmappedEmailRecipients sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\ttruncate: true) ~> byRecipientSink"
 				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/emailRecipientExtract')]",
 				"[concat(variables('factoryId'), '/datasets/byEmployeeResults')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/main')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "main",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "main",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"RawEmailRecipient": {},
-									"byRecipientSink": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							}
-						}
-					}
-				],
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/main')]"
 			]
 		}
 	]
