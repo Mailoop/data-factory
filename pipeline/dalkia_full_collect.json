@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "emails",
+				"name": "extract_emails",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -56,7 +56,14 @@
 			{
 				"name": "copyEmailRecipient",
 				"type": "Copy",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "extract_emails",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
