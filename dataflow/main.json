@@ -18,7 +18,7 @@
 						"referenceName": "Result_Agg",
 						"type": "DatasetReference"
 					},
-					"name": "pre_process"
+					"name": "preprocess"
 				}
 			],
 			"transformations": [
@@ -27,7 +27,7 @@
 					"description": "Creates an explicit mapping for each drifted column"
 				}
 			],
-			"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> RawEmailRecipient\nRawEmailRecipient derive(er_id = toString(byName('id')),\n\t\ter_recipient_id = toString(byName('recipient_id')),\n\t\ter_email_id = toString(byName('email_id')),\n\t\ter_status = toString(byName('status')),\n\t\ter_created_at = toString(byName('updated_at')),\n\t\ter_updated_at = toString(byName('updated_at')),\n\t\ter_through_list = toString(byName('through_list')),\n\t\ter_read_delay = toString(byName('read_delay')),\n\t\ter_mailbox_message_id = toString(byName('mailbox_message_id')),\n\t\ter_is_read = toString(byName('is_read')),\n\t\ter_read_time = toString(byName('read_time')),\n\t\ter_delivered_date = toString(byName('delivered_date'))) ~> mappedEmailRecipients\nmappedEmailRecipients sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\ttruncate: true) ~> pre_process"
+			"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> RawEmailRecipient\nRawEmailRecipient derive(er_id = toString(byName('id')),\n\t\ter_recipient_id = toString(byName('recipient_id')),\n\t\ter_email_id = toString(byName('email_id')),\n\t\ter_status = toString(byName('status')),\n\t\ter_created_at = toString(byName('updated_at')),\n\t\ter_updated_at = toString(byName('updated_at')),\n\t\ter_through_list = toString(byName('through_list')),\n\t\ter_read_delay = toString(byName('read_delay')),\n\t\ter_mailbox_message_id = toString(byName('mailbox_message_id')),\n\t\ter_is_read = toString(byName('is_read')),\n\t\ter_read_time = toString(byName('read_time')),\n\t\ter_delivered_date = toString(byName('delivered_date'))) ~> mappedEmailRecipients\nmappedEmailRecipients sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\ttruncate: true) ~> preprocess"
 		}
 	}
 }
