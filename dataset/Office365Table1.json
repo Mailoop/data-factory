@@ -9,7 +9,7 @@
 		"type": "Office365Table",
 		"schema": [],
 		"typeProperties": {
-			"tableName": "BasicDataSet_v0.MailFolder_v0"
+			"tableName": "BasicDataSet_v0.Message_v1"
 		}
 	}
 }
